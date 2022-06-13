@@ -299,6 +299,22 @@ e.g.
 -Of course you can change the payload or do anything you wanna do in this action
 
 
+8. Understanding the Action "Context" - Revisiting context
+=====================================
+
+-we can console.log(context) and we will see a couple of interesting things
+
+-context is a giant object with methods and properties 
+        e.g 
+            > commit ( type , payload , options  ) - Which we have just used
+            > dispatch(  type , payload ) - can also dispatch another action from inside an action
+                -This can be helpful if you are sending a HTTP request and if it succeeds , you can trigger a success action ; if error you trigger an error handling action
+            > getters : {  } - Can also access getters ; incase your action needs some calculated value which you will derive from the getter
+            > state : {counter: 12} - You can also tap directly to the state if the gtters might not be enough
+
+-
+
+
 */
 
 import { createApp } from 'vue';
@@ -336,6 +352,7 @@ const store = createStore({
         },
 
         increase(context , payload  ){
+            console.log(context);
             context.commit('increase' , payload)
         },
     },
