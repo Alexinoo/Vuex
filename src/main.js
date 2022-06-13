@@ -213,6 +213,92 @@ e.g.
    }
 
 
+7. Running Async Code with Actions
+=====================================
+
+-Suppose in the increment mutation - we don't want to increment immediately , but wait for 2 sec and then increment 
+
+-A good example is Sending an HTTP request and you wait for the response and only when the response is there , you want to change your state
+
+-Or rather have code which runs asynchronously - Does not finish immediately but sometimes in the future 
+
+-THE PROBLEM IS THAT MUTATIONS MUST BE SYNCHROUNOUS - YOU ARE NOT ALLOWED TO HAVE ANY ASYNC CODE IN YOU MUTATIONS ; YOU CAN STILL DO IT , BUT THIS IS A BAD PRACTICE
+
+-mutations need to execute step-by-step - Not allowed to do anything that might take longer
+
+-The reason for that is if multiple mutations execute , every mutation should work with the latest state and if another mutation was committed but did not finish yet , then this will lead to errors in your program
+
+-INSTEAD VUEX HAS A BETTER CONCEPT IN PLACE FOR WORKING WITH ASYNC CODE  WHICH IS : ACTIONS
+
+-AND COMPONENTS SHD TRIGGER ACTIONS FIRST WHICH THEN IN TURN TRIGGER MUTATIONS
+
+-Because Actions can now use async code
+
+-Therefore it is adviseable to have ACTIONS between components and mutations even if components could commit mutations themselves and that would not be a problem if we did not have async code
+
+-It is a good practice to use actions : {} to ensure you don't put async code accidentally 
+
+SO HOW DO WE ADD ACTIONS THEM TO OUR STORE
+--------------------------------------------
+
+- we add actions which also take an object  and methods
+
+    actions : {
+        method1(){
+
+        },
+        method2s(){
+
+        },
+    }
+
+-And then actions again are just methods and you can use the same name here with the one used in mutations
+
+-This action get an object as an argument - A context object - which is full of interesting things but we wil cover this in detail in the next lecture
+
+-context has a commit method we can call for example and it does what you think; It commits a mutation - just like you would commit it inside a component
+
+-you can pass the second argument as a payload or pass
+
+-NB: ACTIONS UNLIKE MUTATIONS ARE ALLOWED TO RUN ASYNCHRONOUSLY - AND THEREFORE WE CAN ADD OUR TIMEOUT HERE!
+
+    actions : {
+
+        increment(context){
+             setTimeout(function(){
+                    context.commit('increment') //call it directly
+                    context.commit('increment' , payload) // OR pass a payload
+                    context.commit({  }) // OR pass an object
+                  } , 2000)
+            }
+    }
+-With this , the mutation is synchronous but the Action is async code which is allowed by Vuex
+
+-AND NOW WE NEED TO CHANGE OUR COMPONENT CODE AND MAKE SURE THAT WE DON'T COMMIT INSIDE THE COMPONENT BUT WE USE THE ACTION INSTEAD
+
+-SO INSIDE OF THE COMPONENT e.g. <ChangeCounter /> , where we previously commited , we can now dispatch() an action 
+            this.$store.dispatch('increment')
+
+-And the good thing is that the syntax of the dispatch() is as similar as the one for commit    
+e.g.
+        this.$store.dispatch('increase')
+        OR
+        this.$store.dispatch('increase' , { value : 10 })
+        OR
+        this.$store.dispatch({
+            type : 'increase ,
+            value : 10 
+         })
+
+-The action increase() will then receive the context object and the  payload added to the dispatch function as an extra argument which we can then forward to the commited mutation
+
+e.g.
+    increase(context , payload  ){
+            context.commit('increase' , payload)
+        },
+-Of course you can change the payload or do anything you wanna do in this action
+
+
 */
 
 import { createApp } from 'vue';
@@ -241,15 +327,26 @@ const store = createStore({
         }
     } ,
 
+    actions : {
+
+        increment(context){
+            setTimeout(function(){
+                context.commit('increment')
+            } , 2000)
+        },
+
+        increase(context , payload  ){
+            context.commit('increase' , payload)
+        },
+    },
+
     getters : {
         finalCounter(state){
             console.log(state);
              return state.counter * 3;
         } ,
 
-        normalizeCounter(state , getters){
-
-            console.log(state);
+        normalizeCounter(_ , getters){
 
             const finalCounter = getters.finalCounter
 
