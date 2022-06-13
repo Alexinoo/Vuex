@@ -148,6 +148,71 @@ AND NOW WE HAVE MOVED THE CONCRETE LOGIC OF HOW THIS STATE IS UPDATED OUT OF THE
                 value : 10
         });
 
+
+        
+6. Introducing Getters - A Better way of Getting Data
+=====================================
+
+- We use mutations to edit our data in the store , we could also argue directly reading the values from the state is not ideal
+
+- Why could this be sub-optimal ..?
+
+-Let's add <FavoriteValue /> component with the same logic as <TheCOunter />
+
+-And now let's say we want to update the counter by multiplying by 2
+
+-So that means we do it in 2 locations and that leads to duplication and certainly needs to change this in diff places if we want to work with another value
+
+-This might not be ideal with big applications  and that is why we dont want to directly talk to the state
+
+-We can use a concept called Getters which are computed properies which are directly defined in the store which we can use inside any of our components 
+
+-getters is a property which takes in object with a variety of methods defined
+
+-It also takes state 0- which is the current state value and other getters as the second argument
+
+-Passing getters here is useful if the value that we are expecting here depends on the result of another getter
+
+-A getter has to return a value which is ideally our counter managed by the state multiplied by 2
+
+e.g. 
+
+    finalCounter(state){
+            
+            console.log(state);
+             return state.counter * 2;
+        }
+-And now we can access our finalCounter getter inside <TheCounter /> by using
+
+        this.$store.getters.finalCounter
+
+-And we don't call it / execute it ; We just point at it
+
+-And now we can replace reading directly
+             this.$store.state.counter * 2
+  with( use of getters )
+             this.$store.getters.finalCounter instead
+
+-So if we ever want to have the value of the counter to something else , we can do it in one place
+
+-We can also have normalizeCounter(state) that multiplies the current counter by 3
+
+-It shd then check if the counter is greater than 100 return 100 and if less than 0 return 0
+
+-And then we can use normalizeCounter in <FavoriteValue />
+
+-So this works but IT IS NOT GREAT  because we are calculating something which we are already calculating in another getter
+
+          const finalCounter = state.counter * 3
+
+-And that is why we get (getters ) as the second argument and with that we can refer to our getters and then call the finalCounter
+
+   normalizeCounter(state , getters){
+
+        const finalCounter = getters.finalCounter
+   }
+
+
 */
 
 import { createApp } from 'vue';
@@ -166,11 +231,34 @@ const store = createStore({
 
     mutations : {
         increment( state ) {
+            // console.log(state);
             state.counter = state.counter + 2
         } ,
 
         increase( state , payload ){
+            // console.log(state);
             state.counter = state.counter + payload.value
+        }
+    } ,
+
+    getters : {
+        finalCounter(state){
+            console.log(state);
+             return state.counter * 3;
+        } ,
+
+        normalizeCounter(state , getters){
+
+            console.log(state);
+
+            const finalCounter = getters.finalCounter
+
+            if (finalCounter < 0 ){
+                return 0
+            } else if (finalCounter > 100 ){
+                return 100
+            }
+            return finalCounter;
         }
     }
 });
