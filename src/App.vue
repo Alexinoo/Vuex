@@ -59,6 +59,7 @@ export default {
     FavoriteValue,
   },
   methods : {
+    
     addTen(){
         // this.$store.commit('increase' , { value : 10 })
         this.$store.dispatch({
