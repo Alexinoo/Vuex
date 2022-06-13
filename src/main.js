@@ -310,9 +310,7 @@ e.g.
             > dispatch(  type , payload ) - can also dispatch another action from inside an action
                 -This can be helpful if you are sending a HTTP request and if it succeeds , you can trigger a success action ; if error you trigger an error handling action
             > getters : {  } - Can also access getters ; incase your action needs some calculated value which you will derive from the getter
-            > state : {counter: 12} - You can also tap directly to the state if the gtters might not be enough
-
--
+            > state : {counter: 12} - You can also tap directly to the state if the getters might not be enough - But its highly discouraged and you shd always use a mutation for that
 
 
 */
