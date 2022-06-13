@@ -104,6 +104,50 @@ AND NOW WE HAVE MOVED THE CONCRETE LOGIC OF HOW THIS STATE IS UPDATED OUT OF THE
 
 -AND WE JUST COMMIT THIS MUTATION INSIDE OUR COMPONENT
 
+
+
+5. Passing Data to Mutations with payloads
+=====================================
+
+-Now some mutations might require arguments like we are hardcoding here
+  increment( state ) {
+            state.counter = state.counter + 2
+        }
+
+-We could add an increase(state) mutation which also gets the state 
+
+-And say that in here we also want to change the counter by increasing it with a value which can be defined when this mutation is commited
+
+-And to also allow for this scenario , your mutations actually take a second argument (   i.e A payload / data-package ) that can be appended
+
+-Now payload can be anything i.e Number / String / Object
+
+-And here we can assume that it is an object where we have a value property but you can also expects any data on commited mutations
+
+-But How can we now call this mutation increase() from our component  ..?  
+------------------------------------
+
+-The commit() also takes in a second argument - which will be the payload which later will be received in your mutation
+
+-Could be a Number / String / But in our case we are expecting an object which we are accessing with payload.value in our mutation
+
+.e.g.     this.$store.commit('increase' , { value : 10 })
+
+-So payloads - extra data can be passed to your mutations
+
+-We also have an alternative of commiting  by passing it an object with the following properties:
+        {
+                type - Holds the name of the mutation
+
+                value - 10
+            }
+-And this object will be provided as payload to the specified mutation
+
+ e.g.  this.$store.commit({
+                type : 'increase' ,
+                value : 10
+        });
+
 */
 
 import { createApp } from 'vue';
@@ -122,7 +166,11 @@ const store = createStore({
 
     mutations : {
         increment( state ) {
-            state.counter = state.counter + 1
+            state.counter = state.counter + 2
+        } ,
+
+        increase( state , payload ){
+            state.counter = state.counter + payload.value
         }
     }
 });
