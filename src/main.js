@@ -313,8 +313,8 @@ e.g.
             > state : {counter: 12} - You can also tap directly to the state if the getters might not be enough - But its highly discouraged and you shd always use a mutation for that
 
 
--10. ) EXAMPLE ADDING MORE STATE - Add UserAuthComponent 
-==================================
+10. ) EXAMPLE ADDING MORE STATE - Add UserAuthComponent 
+===========================================
 
 STATE:
 -------
@@ -356,6 +356,112 @@ GETTERS
 
 -CONTINUED IN <UserAuth />..........
 
+
+
+11. ) ORGANIZING YOUR STORE WITH MODULES
+===========================================
+
+-Means split your store into multiple modules as your application grows
+
+-You may only have one store per app but this store can be made up of multiple modules to keep your code more manageable
+
+-For example , one module for the counter and one module for the authentication or leave authentication in the root module and outsource the counter into an extra module
+
+-And that is what we are going to do here
+
+-Let's create a new object NOT A STORE JUST A REGULAR JS OBJECT
+
+-It needs to have exactly the same features as the ones passed to the store
+
+        const counterModule = {
+
+
+            state() {
+                return {
+                     counter : 0,
+                }
+            } ,
+
+
+            mutations : {
+                    increment( state ) {
+                    state.counter = state.counter + 2
+                } ,
+
+                increase( state , payload ){
+                    state.counter = state.counter + payload.value
+                },
+            } ,
+
+
+
+            actions : {
+                 increment(context) {
+                    setTimeout(function () {
+                        context.commit('increment')
+                    }, 2000)
+                },
+
+                increase(context, payload) {
+                    context.commit('increase', payload)
+                },
+            } ,
+
+
+            getters : {
+                 finalCounter(state){
+                    console.log(state);
+                    return state.counter * 3;
+                 } ,
+
+                normalizeCounter(_ , getters){
+
+                    const finalCounter = getters.finalCounter
+
+                    if (finalCounter < 0 ){
+                        return 0
+                    } else if (finalCounter > 100 ){
+                        return 100
+                    }
+                    return finalCounter;
+                } ,
+                    },
+             }
+
+-And now we can move our counter state here out of the global store into our counterModule
+
+-Do the same for mutations : Transfer counter related mutations to counterModule
+
+-And the same for actions : Transfer counter related actions to counterModule
+
+-And the same for getters : Transfer counter related getters to counterModule
+
+-And with that , our global store i.e. main store is now cleaner because it only have authentication state - and we could also move it to a separate module if we wanted to
+
+-BUT HOW DO WE GET THE MODULE BACK TO THE STORE
+----------------------------------------------------
+
+-Well createStore({}) also has modules property which takes an object
+
+             modules : {
+
+                }
+
+-And here , we now add all the modules in this object
+
+-You give every module an identifier of your choice as the key and the value which is the module that should be merged
+
+e.g.   
+            const store = createStore({
+            
+                   modules : {
+
+                    numbers : counterModule
+
+                }
+        })
+-And this WORKS AS BEFORE - BECAUSE MODULES MERGED INTO THE STORE ARE ALL IN THE SAME LEVEL
+
 */
 
 import { createApp } from 'vue';
@@ -364,25 +470,68 @@ import { createStore } from 'vuex';
 
 import App from './App.vue';
 
-const store = createStore({
+const counterModule = {
+  
     state(){
-
         return {
-            counter : 0,
+            counter: 0,
+        }
+    },
+    mutations : {
+        increment(state) {
+            state.counter = state.counter + 2
+        },
+
+        increase(state, payload) {
+            state.counter = state.counter + payload.value
+        },
+    },
+    actions : {
+        increment(context) {
+            setTimeout(function () {
+                context.commit('increment')
+            }, 2000)
+        },
+
+        increase(context, payload) {
+            console.log(context);
+            context.commit('increase', payload)
+        },
+
+    },
+    getters : {
+        finalCounter(state) {
+            console.log(state);
+            return state.counter * 3;
+        },
+
+        normalizeCounter(_, getters) {
+
+            const finalCounter = getters.finalCounter
+
+            if (finalCounter < 0) {
+                return 0
+            } else if (finalCounter > 100) {
+                return 100
+            }
+            return finalCounter;
+        },
+    },
+}
+
+const store = createStore({
+
+    modules: {
+        numbers: counterModule    
+    },
+
+    state(){
+        return {           
             isLoggedIn : false,
         }
     } ,
 
-    mutations : {
-        increment( state ) {
-            // console.log(state);
-            state.counter = state.counter + 2
-        } ,
-
-        increase( state , payload ){
-            // console.log(state);
-            state.counter = state.counter + payload.value
-        },
+    mutations : {      
 
         setAuth( state , payload ){
             state.isLoggedIn = payload.isAuth
@@ -390,18 +539,6 @@ const store = createStore({
     } ,
 
     actions : {
-
-        increment(context){
-            setTimeout(function(){
-                context.commit('increment')
-            } , 2000)
-        },
-
-        increase(context , payload  ){
-            console.log(context);
-            context.commit('increase' , payload)
-        },
-
 
         login(context , payload){
             context.commit('setAuth' , payload)
@@ -414,23 +551,6 @@ const store = createStore({
     },
 
     getters : {
-        finalCounter(state){
-            console.log(state);
-             return state.counter * 3;
-        } ,
-
-        normalizeCounter(_ , getters){
-
-            const finalCounter = getters.finalCounter
-
-            if (finalCounter < 0 ){
-                return 0
-            } else if (finalCounter > 100 ){
-                return 100
-            }
-            return finalCounter;
-        } ,
-
         userIsAuthenticated(state){
             return state.isLoggedIn;
         }
