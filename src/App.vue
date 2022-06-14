@@ -29,18 +29,41 @@
 
     e.g.   <the-counter></the-counter>
 
+
+
+    10. ) EXAMPLE ADDING MORE STATE
+==================================
+
+-Imported <UserAuth /> component and register it locally
+
+-Used it inside <base-container></base-container>  and give it a title of Auth
+
+-Use computed property that returns isLoggedIn state using the getter;
+
+      computed: {
+
+        isAuth() {
+          return this.$store.getters.userIsAuthenticated;
+        }
+      },
+
+  -Check if isAuth is true/false and show Vuex Container
+
  -->
 
 
 <template>
-  <base-container title="Vuex">
-
+  <base-container title="Vuex" v-if="isAuth">
     <the-counter></the-counter>
 
     <favorite-value></favorite-value>
 
     <button @click="addTen">Add 10</button>
     <change-counter></change-counter>    
+  </base-container>
+
+  <base-container title="Auth">
+  <user-auth></user-auth>
   </base-container>
 </template>
 
@@ -50,6 +73,7 @@ import TheCounter from './components/TheCounter.vue'
 import ChangeCounter from './components/ChangeCounter.vue';
 
 import FavoriteValue from './components/FavoriteValue.vue'
+import UserAuth from './components/UserAuth.vue';
 
 export default {
   components: {
@@ -57,7 +81,16 @@ export default {
     TheCounter,
     ChangeCounter,
     FavoriteValue,
+    UserAuth,
   },
+
+  computed: {
+
+    isAuth() {
+      return this.$store.getters.userIsAuthenticated;
+    }
+  },
+
   methods : {
     
     addTen(){

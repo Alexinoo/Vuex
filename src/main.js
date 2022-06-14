@@ -313,6 +313,49 @@ e.g.
             > state : {counter: 12} - You can also tap directly to the state if the getters might not be enough - But its highly discouraged and you shd always use a mutation for that
 
 
+-10. ) EXAMPLE ADDING MORE STATE - Add UserAuthComponent 
+==================================
+
+STATE:
+-------
+-Add isLoggedIn state and set it to false
+
+
+MUTATIONS:
+-----------
+-Add setAuth() mutations and payload info for manipulating isLoggedIn state
+
+   setAuth( state , payload ){
+            state.isLoggedIn = payload.isAuth
+        }
+
+ACTIONS
+---------------
+-Add login() and logout() actions
+
+-Add login(context) that commits the setAuth() mutation and set it to true
+
+        login(context , payload){
+            context.commit('setAuth' , payload)
+        }
+
+-Add logout(context) that commits the setAuth mutation and set it to false
+
+        logout(context , payload){
+            context.commit('setAuth' , payload)
+        }
+
+GETTERS
+---------------
+
+-Add userIsAuthenticated(state) which returns the current state i.e. false
+
+   userIsAuthenticated(state){
+            return state.isLoggedIn;
+        }
+
+-CONTINUED IN <UserAuth />..........
+
 */
 
 import { createApp } from 'vue';
@@ -326,6 +369,7 @@ const store = createStore({
 
         return {
             counter : 0,
+            isLoggedIn : false,
         }
     } ,
 
@@ -338,6 +382,10 @@ const store = createStore({
         increase( state , payload ){
             // console.log(state);
             state.counter = state.counter + payload.value
+        },
+
+        setAuth( state , payload ){
+            state.isLoggedIn = payload.isAuth
         }
     } ,
 
@@ -353,6 +401,16 @@ const store = createStore({
             console.log(context);
             context.commit('increase' , payload)
         },
+
+
+        login(context , payload){
+            context.commit('setAuth' , payload)
+        },
+
+        logout(context , payload){
+            context.commit('setAuth' ,payload)
+        },
+
     },
 
     getters : {
@@ -371,6 +429,10 @@ const store = createStore({
                 return 100
             }
             return finalCounter;
+        } ,
+
+        userIsAuthenticated(state){
+            return state.isLoggedIn;
         }
     }
 });
