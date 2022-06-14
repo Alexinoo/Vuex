@@ -374,14 +374,11 @@ GETTERS
 -It needs to have exactly the same features as the ones passed to the store
 
         const counterModule = {
-
-
             state() {
                 return {
                      counter : 0,
                 }
             } ,
-
 
             mutations : {
                     increment( state ) {
@@ -392,8 +389,6 @@ GETTERS
                     state.counter = state.counter + payload.value
                 },
             } ,
-
-
 
             actions : {
                  increment(context) {
@@ -406,7 +401,6 @@ GETTERS
                     context.commit('increase', payload)
                 },
             } ,
-
 
             getters : {
                  finalCounter(state){
@@ -462,6 +456,52 @@ e.g.
         })
 -And this WORKS AS BEFORE - BECAUSE MODULES MERGED INTO THE STORE ARE ALL IN THE SAME LEVEL
 
+
+12. ) UNDERSTANDING LOCAL MODULE STATE
+===========================================
+
+-From our previous lecture , modules are merged into your main store with the same level as all the other things in the store 
+
+-You can change this behavior
+
+-However, if we console.log(state) inside our increase() mutations , we only see counter state
+
+-This is because it's actually treated as a local state inside the module
+
+-Mutations/actions / getters are global , we can access them as before on the main store but the state is local to this module
+
+-For example , we cannot access isLoggedIn() while in counterModule getters
+        testAuth( state ) {
+            return state.isLoggedIn
+        }
+-If we do this and then access this getter from the coputed : {} in <UserAuth />
+
+    isTestAuth() {
+            return this.$store.getters.testAuth
+        },
+
+-And then try to print it below the buttons , we get no output
+
+    <button @click="login" v-if="!isAuth">Login</button>
+    <button @click="logout" v-if="isAuth">Logout</button>
+    <p> {{ isTestAuth }}</p>
+
+-This is because states are only local to the module they are defined in;
+
+-In this case isLogged state is in the main store and therefore inaccessible from the counterModule
+
+-The same case applies to actions/muttations and getters
+
+-But if we would need to access anything from the main store inside our counter module, then we can use getters ,rootState and rootGetters  which are context properties we saw earlier in the Understanding Action"Context"
+
+  testAuth(state ,getters , rootState , rootGetters ) {
+            return state.isLoggedIn
+        },
+
+-This is the only way we can ge access to the main state of our root store instead of just the state of this specific module in case you need it
+
+-Probably you will not need this too often but there can be use cases where this can be useful
+
 */
 
 import { createApp } from 'vue';
@@ -483,6 +523,7 @@ const counterModule = {
         },
 
         increase(state, payload) {
+            console.log(state);
             state.counter = state.counter + payload.value
         },
     },
@@ -500,8 +541,12 @@ const counterModule = {
 
     },
     getters : {
+
+        testAuth(state) {
+            return state.isLoggedIn
+        },
+
         finalCounter(state) {
-            console.log(state);
             return state.counter * 3;
         },
 
