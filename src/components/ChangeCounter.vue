@@ -58,13 +58,13 @@ export default {
             
         //     this.$store.dispatch('increment')
         // }
-        // ...mapActions(['increment' , 'increase'])
+        ...mapActions('numbers',['increment' , 'increase'])
 
-          ...mapActions({
-              inc: 'increment',
-              increase: 'increase'
+        //   ...mapActions({
+        //       inc: 'increment',
+        //       increase: 'increase'
 
-          })
+        //   })
     }
 }
 </script>

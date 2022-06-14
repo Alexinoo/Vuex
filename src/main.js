@@ -502,6 +502,91 @@ e.g.
 
 -Probably you will not need this too often but there can be use cases where this can be useful
 
+
+
+
+12. ) NAMESPACING MODULES 
+===========================================
+
+-Now besides this local state , you can also make the entire module local i.e Make it namespaced to make sure that multiple modules are clearly separated from each other 
+
+-Now why might you wanna do that...?
+
+-Well as your application grows , you could of course have nameclashes , same getter / action / mutations names 
+
+-For example , if we have a login() action in the counterModule , that will be crashing with the login() in the main store. 
+
+-To avoid that , you can namespace modules;
+
+-We do that by adding the namespaced option to our modules which we can set to either true/false
+        e.g namespaced : true
+
+-Now you tell Vue that the entire module and not just the state should be kind of detached from the rest of the store
+
+-And if we do that we get an error if we try to click Add 10 ; Add  2 ; Add 11 because increase / increment / finalCounter are not accessible in the main store
+
+-And now we have to specify the correct namespace and how does it work and what is the namespace
+
+-The namespace is the key we assigned the module in the main store
+        i.e.    numbers: counterModule    
+
+-And we now need to use this key to access actions /getters/mutations inside of this module
+
+-So for example in  <FavoriteValue /> cmpnt ,we need to access the normalizeCounter getter from: 
+
+  computed: {
+        counter() {
+            return this.$store.getters.normalizeCounter
+        }
+    },
+
+    to:
+
+    computed: {
+        counter() {
+            return this.$store.getters['numbers/normalizeCounter']
+        }
+    },
+-In short by adding special property name which contains a special character ['numbers/normalizeCounter']
+
+-HOWEVER , IF YOU ARE USING ..mapGetters[]
+
+-YOU PASS A FIRST ARGUMENT TO MAP GETTERS , WHICH IS YOUR NAMESPACE AND YOU STILL ADD YOUR ARRAY WITH THE GETTER NAME AS STRING LIKE BEFORE
+
+-So for example , in <TheCounter /> component , you would o something like this in order to use finalCounter from the computed property
+
+        :Change it from :
+
+        ...mapGetters(['finalCounter'])
+
+
+        :Change it to :
+
+        ...mapGetters('numbers',['finalCounter'])
+
+- IF YOU ARE USING ..mapActions[] - we do exactly the same thing ; 
+
+-Add namespace of your module as the first argument , followed by an array of actions
+
+  ALTERANTIVE 1 )  
+  
+  ...mapActions('numbers',['increment' , 'increase'])
+
+- IF YOU ARE USING ..dispatch() - we do exactly the same thing ; 
+
+    :Change From :
+    
+   this.$store.dispatch({
+            type : 'increase' ,
+            value : 10
+        });
+
+    :Change To :
+
+   this.$store.dispatch('numbers',{
+            type : 'numbers/increase' ,
+            value : 10
+        });
 */
 
 import { createApp } from 'vue';
@@ -511,7 +596,7 @@ import { createStore } from 'vuex';
 import App from './App.vue';
 
 const counterModule = {
-  
+    namespaced: true,  
     state(){
         return {
             counter: 0,

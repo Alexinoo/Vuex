@@ -94,10 +94,21 @@ export default {
   methods : {
     
     addTen(){
-        // this.$store.commit('increase' , { value : 10 })
-        this.$store.dispatch({
-            type : 'increase' ,
-            value : 10
+        //ALTERNATIVE 1 :  this.$store.commit('increase' , { value : 10 })
+
+        //ALTERNATIVE 2 :  this.$store.dispatch('increase' , { value : 10 })
+
+        /*ALTERNATIVE 3 :  - USING namespaced modules
+
+              this.$store.dispatch({
+                type : 'numbers/increase' , 
+                value : 10 ,
+                })
+         */
+
+      this.$store.dispatch({
+             type: 'numbers/increase' ,
+             value : 10
         });
     }
   }
